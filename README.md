@@ -28,6 +28,7 @@ This process will provide you with the client_id and client_secret needed for au
 
 2. You also need to retrieve the refresh token to be able to obtain a new token for every API call. The process for obtaining the refresh token is explained in [Microsoft's documentation](https://docs.microsoft.com/en-us/advertising/guides/authentication-oauth-get-tokens).
 
+3. `listId` is the identifier of your list in Microsoft ToDo. I don't know what's the best way to retrieve it, but you can e.g. see it in the HTML or obtain it via the API.
 
 ## Local development
 
