@@ -10,10 +10,8 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
@@ -30,9 +28,6 @@ import androidx.wear.compose.material.Chip
 import androidx.wear.compose.material.Text
 import androidx.wear.compose.material.ChipDefaults
 import androidx.compose.ui.text.style.TextAlign
-import java.io.File
-import java.nio.file.Paths
-import kotlin.io.path.listDirectoryEntries
 
 // These values get populated by setSecrets
 var clientId = ""
@@ -40,28 +35,29 @@ var clientSecret = ""
 var refreshToken = ""
 var listId = ""
 
+lateinit var taskListNew: MutableList<Map<String, String>>
+
 
 class MainActivity : ComponentActivity() {
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         // Set secrets only on the first load
         setSecrets()
-        val tasks = getTasks()
 
         setContent {
-
-            WearApp(tasks)
+            setupApp()
         }
     }
 
     override fun onStart(){
         super.onStart()
-        val tasks = getTasks()
 
         setContent {
-            WearApp(tasks)
+            setupApp()
         }
     }
+
     // Set global secrets to be re-used by all functions
     private fun setSecrets() {
 
@@ -78,9 +74,18 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
+fun setupApp(){
+    val tasks = getTasks()
+    WearApp(tasks)
+}
+
+@Composable
 fun WearApp(tasks: MutableList<Map<String, String>>) {
+    // State to be able to update the list of tasks and trigger a re-compose
+    // Reference: https://developer.android.com/jetpack/compose/state
+    val (taskList, setTaskList) = remember {mutableStateOf(tasks)}
     MyApplicationTheme {
-        TaskList(tasks)
+        TaskList(taskList, setTaskList)
     }
 }
 
@@ -95,11 +100,10 @@ fun getTasks(): MutableList<Map<String, String>> {
 }
 
 @Composable
-fun TaskList(tasks: MutableList<Map<String, String>>) {
-    // State to be able to update the list of tasks and trigger a re-compose
-    // Reference: https://developer.android.com/jetpack/compose/state
-    var taskList by remember {mutableStateOf(tasks)}
-
+fun TaskList(
+    taskList: MutableList<Map<String, String>>,
+    setTaskList: (MutableList<Map<String, String>>) -> Unit
+) {
     val accessToken = getAccessToken()
 
     ScalingLazyColumn(
@@ -117,7 +121,8 @@ fun TaskList(tasks: MutableList<Map<String, String>>) {
                     val itemList = taskList.toMutableList()
                     itemList.removeAt(it)
 
-                    taskList = itemList
+                    // this modifies the state
+                    setTaskList(itemList)
                 },
                 label = { taskList[it]["title"]?.let { it1 -> Text(
                     it1,
