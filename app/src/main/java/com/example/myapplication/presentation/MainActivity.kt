@@ -90,7 +90,6 @@ fun WearApp(tasks: MutableList<Map<String, String>>) {
 }
 
 fun getTasks(): MutableList<Map<String, String>> {
-// Check if the file exists.
 
     val url = getURL(listId)
     val accessToken = getAccessToken()
