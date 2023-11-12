@@ -44,7 +44,6 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         // Set secrets only on the first load
         setSecrets()
-
         setContent {
             setupApp()
         }
@@ -76,13 +75,6 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun setupApp(){
     val tasks = getTasks()
-    WearApp(tasks)
-}
-
-@Composable
-fun WearApp(tasks: MutableList<Map<String, String>>) {
-    // State to be able to update the list of tasks and trigger a re-compose
-    // Reference: https://developer.android.com/jetpack/compose/state
     val (taskList, setTaskList) = remember {mutableStateOf(tasks)}
     MyApplicationTheme {
         TaskList(taskList, setTaskList)
@@ -90,7 +82,6 @@ fun WearApp(tasks: MutableList<Map<String, String>>) {
 }
 
 fun getTasks(): MutableList<Map<String, String>> {
-
     val url = getURL(listId)
     val accessToken = getAccessToken()
     val tasks = fetchTasks(url, accessToken)
@@ -133,13 +124,6 @@ fun TaskList(
             )
        }
     }
-}
-
-@Preview(device = Devices.WEAR_OS_SMALL_ROUND, showSystemUi = true)
-@Composable
-fun DefaultPreview() {
-    val tasks = getTasks()
-    WearApp(tasks)
 }
 
 // Mark tas as completed in the API
